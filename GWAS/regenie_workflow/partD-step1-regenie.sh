@@ -13,7 +13,7 @@
 
 # Inputs:
 # Note that you can adjust the output directory by setting the data_file_dir variable
-# - /Data/diabetes_wes_200k.phe - from part A (please refer to notebook & slides)
+# - /Data/${pheno_file} - from part A (please refer to notebook & slides)
 # - /Data/WES_array_snps_qc_pass.snplist - from part C
 # - /Data/ukb22418_c1_22_merged.bed - from part B
 # - /Data/ukb22418_c1_22_merged.bed - from part B
@@ -27,17 +27,22 @@
 
 #output directory - this should also be where the files in 02-step1-qc-filter.sh end up
 data_file_dir="/Data/"
+pheno_file="zbw_wes_450k.phe"
+data_field="22418"
+bfile="ukb${data_field}_c1_22_v2_merged"
+output="BW_results"
+SNP_LIST="WES_array_snps_qc_pass.snplist"
 
 run_regenie_step1="regenie --step 1\
- --lowmem --out diabetes_results --bed ukb22418_c1_22_v1_merged\
- --phenoFile diabetes_wes_200k.phe --covarFile diabetes_wes_200k.phe\
- --extract 200K_WES_array_snps_qc_pass.snplist --phenoCol diabetes_cc\
- --covarCol age --covarCol sex --covarCol ethnic_group --covarCol ever_smoked\
- --bsize 1000 --bt --loocv --gz --threads 16";
+ --out ${output} --bed ${bfile}\
+ --phenoFile ${pheno_file} --covarFile ${pheno_file}\
+ --extract ${SNP_LIST} --phenoCol bw_z --covarCol sex\
+ --bsize 1000 --lowmem --loocv --gz --threads 16"
 
-dx run swiss-army-knife -iin="${data_file_dir}/ukb22418_c1_22_v1_merged.bed" \
-   -iin="${data_file_dir}/ukb22418_c1_22_v1_merged.bim" \
-   -iin="${data_file_dir}/ukb22418_c1_22_v1_merged.fam"\
-   -iin="${data_file_dir}/diabetes_wes_200k.phe" \
-   -icmd=${run_plink_wes} --tag="Step1" --instance-type "mem1_ssd1_v2_x16"\
-   --destination="${project}:/Data/" --brief --yes;
+dx run swiss-army-knife -iin="${data_file_dir}${bfile}.bed" \
+   -iin="${data_file_dir}${bfile}.bim" \
+   -iin="${data_file_dir}${bfile}.fam"\
+   -iin="${data_file_dir}${SNP_LIST}" \
+   -iin="${data_file_dir}${pheno_file}" \
+   -icmd="${run_regenie_step1}" --tag="Step1" --instance-type "mem1_ssd1_v2_x16"\
+   --destination="${project}:${data_file_dir}" --brief --yes

@@ -15,12 +15,17 @@
 # - ukb22418_c1_22_v2_merged.fam - used as input for parts C and D
 
 #cmd to run (use as input with `-icmd=$run_merge`)
-run_merge="cp /mnt/project/Bulk/Genotype\ Results/Genotype\ calls/ukb22418_c[1-9]* . ;\
+#data_file_dir="/Bulk/Exome sequences/Population level exome OQFE variants, PLINK format - interim 450k release/"
+data_field="ukb22418"
+pheno_file="zbw_wes_450k.phe"
+output_dir="/Data/"
+
+run_merge="cp /mnt/project/Bulk/Genotype\ Results/Genotype\ calls/${data_field}_c[1-9]* . ;\
         ls *.bed | sed -e 's/.bed//g'> files_to_merge.txt; \
         plink --merge-list files_to_merge.txt --make-bed\
-        --autosome-xy --out ukb22418_c1_22_v2_merged;\
+        --autosome-xy --out ${data_field}_c1_22_v2_merged;\
         rm files_to_merge.txt;"
 
-dx run swiss-army-knife -iin="/Data/diabetes_wes_200k.phe" \
+dx run swiss-army-knife -iin="${output_dir}${pheno_file}" \
    -icmd="${run_merge}" --tag="Step1" --instance-type "mem1_ssd1_v2_x16"\
-   --destination="/Data/" --brief --yes 
+   --destination="${output_dir}" --brief --yes 
